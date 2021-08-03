@@ -53,6 +53,7 @@ const char calcs[] = {
 };
 
 void parseC(FILE *, FILE *);
+void rockstarConvert(FILE *, FILE *);
 void removeEnding(const char*, char*);
 void toCamelCase(char *);
 void convert_to_words(char*, char*);
@@ -62,6 +63,7 @@ int main(int argc, char *argv[])
 {
     FILE *fpIn;
     FILE *fpParse;
+    FILE *fpOut;
     char *prog = argv[0];     // program name for errors
 
     if (argc == 1 ) /* no args: throw error */
@@ -81,11 +83,20 @@ int main(int argc, char *argv[])
         {
             char parseName[strlen(*argv)+4];
             removeEnding(*argv, parseName);
-            strcpy(parseName+strlen(parseName)-1, ".parse");
+            strcpy(parseName+strlen(parseName), ".parse");
             fpParse = fopen(parseName, "w");
             parseC(fpIn, fpParse);
             fclose(fpParse);
             fclose(fpIn);
+
+            char outName[strlen(*argv)+4];
+            removeEnding(*argv, outName);
+            strcpy(outName+strlen(outName), ".rock");
+            fpParse = fopen(parseName, "r");
+            fpOut = fopen(outName, "w");
+            rockstarConvert(fpParse, fpOut);
+            fclose(fpParse);
+            fclose(fpOut);
         }
     }
     if (ferror(stdout))
@@ -94,6 +105,16 @@ int main(int argc, char *argv[])
         exit(2);
     }
     exit(0);
+}
+
+void rockstarConvert(FILE *ifp, FILE *ofp)
+{
+    char in;
+    while ((in = getc(ifp)) != EOF)
+    {
+        putc(in, ofp);
+    }
+    
 }
 
 void parseC(FILE *ifp, FILE *ofp)
