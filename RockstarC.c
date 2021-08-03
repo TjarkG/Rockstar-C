@@ -58,6 +58,7 @@ void removeEnding(const char*, char*);
 void toCamelCase(char *);
 void convert_to_words(char*, char*);
 bool iscalc(char);
+int getWord(FILE *, char*, char);
 
 int main(int argc, char *argv[])
 {
@@ -84,16 +85,16 @@ int main(int argc, char *argv[])
             char parseName[strlen(*argv)+4];
             removeEnding(*argv, parseName);
             strcpy(parseName+strlen(parseName), ".parse");
-            fpParse = fopen(parseName, "w");
+            fpParse = fopen(parseName, "r+");
             parseC(fpIn, fpParse);
-            fclose(fpParse);
+            //fclose(fpParse);
             fclose(fpIn);
 
             char outName[strlen(*argv)+4];
             removeEnding(*argv, outName);
             strcpy(outName+strlen(outName), ".rock");
-            fpParse = fopen(parseName, "r");
             fpOut = fopen(outName, "w");
+            fseek(fpParse, 0, SEEK_SET);
             rockstarConvert(fpParse, fpOut);
             fclose(fpParse);
             fclose(fpOut);
@@ -109,12 +110,11 @@ int main(int argc, char *argv[])
 
 void rockstarConvert(FILE *ifp, FILE *ofp)
 {
-    char in;
-    while ((in = getc(ifp)) != EOF)
+    char in[MAXL];
+    while (getWord(ifp, in, MAXL) != EOF)
     {
-        putc(in, ofp);
-    }
-    
+        fprintf(ofp,"%s\n",in);
+    }  
 }
 
 void parseC(FILE *ifp, FILE *ofp)
@@ -288,4 +288,23 @@ void convert_to_words(char* out, char* num)
         }
         ++num;
     }
+}
+
+int getWord(FILE *ifp, char* out, char len)
+{
+    for (char i = 0; i < len; i++)
+    {
+        char in = getc(ifp);
+        if(in == EOF)
+            return EOF;
+        else if(in == '\n')
+        {
+            out[i] = '\0';
+            return 0;
+        }
+        else
+            out[i] = in;
+    }
+    fprintf(stderr,"getWord: char* to short!\n");
+    return -2;
 }
