@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-#define MAXL 64
+#define MAXL 32
 
 const char *ignore[] = {
     "auto",
@@ -26,6 +27,8 @@ const char *foos[] = {
 };
 
 void filecopy(FILE *, FILE *);
+void toCamelCase(char *);
+void convert_to_words(char*, char*);
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +53,15 @@ int main(int argc, char *argv[])
             fclose(fp);
         }
     }
+    char c[] = "test_name12";
+    toCamelCase(c);
+    printf("%s\n", c);
+    char d[] = "testtest30_name";
+    toCamelCase(d);
+    printf("%s\n", d);
+    char e[] = "20";
+    toCamelCase(e);
+    printf("%s\n", e);
     if (ferror(stdout))
     {
         fprintf(stderr, "%s: error writing stdout\n", prog);
@@ -184,5 +196,90 @@ void filecopy(FILE *ifp, FILE *ofp)
         }
         if(!c[0] == '\0')
             fprintf(ofp,"%s\n", c);
+    }
+}
+
+void toCamelCase(char *name)
+{
+    char digits [4] = {'\0','\0','\0','\0'};
+    char length = strlen(name)-1;
+    name[0] = toupper(name[0]);
+    for(char i = 0; i<=length; i++)
+    {
+        if(name[i] == '_')
+        {
+            for(char j = i; j<length; j++)
+            {
+                name[j] = name[j+1];
+            }
+            name[length] = '\0';
+            name[i] = toupper(name[i]);
+        }
+        if(isdigit(name[i]))
+        {
+            for(char j = 0; (j<3) && (j<length-i+1); j++)
+            {
+                if(isdigit(name[j+i]))
+                    digits[j]= name[j+i];
+            }
+            char number [MAXL];
+            convert_to_words(number , digits);
+            strncpy(name + i, number, strlen(number)+1);
+        }
+    }
+}
+
+void convert_to_words(char* out, char* num)
+{
+    int len = strlen(num); //Number of digits
+
+    const char* single_digits[] = {"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
+    const char* two_digits[]    = {"Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+    const char* tens_multiple[] = {"","Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+    const char* tens_power[]    = {"hundred", "thousand"};
+ 
+    // Single digit number
+    if (len == 1) 
+    {
+        strcpy(out, single_digits[*num - '0']);
+        return;
+    }
+
+    while (*num != '\0') {
+ 
+        /* Code path for first 2 digits */
+        if (len >= 3) {
+            if (*num - '0' != 0) {
+                strcpy(out, single_digits[*num - '0']);
+                out += strlen(single_digits[*num - '0']);
+                strcpy(out, tens_power[len - 3]);
+                out += strlen(tens_power[len - 3]);
+            }
+            --len;
+        }
+ 
+        // Code path for last 2 digits
+        else 
+        {
+            //10 - 19
+            if (*num == '1')
+            {
+                strcpy(out, two_digits[*(num + 1) - '0']);
+                return;
+            }
+ 
+            // 20 -99
+            else {
+                strcpy(out, tens_multiple[*num - '0'-1]);
+                out += strlen(tens_multiple[*num - '0'-1]);
+                ++num;
+                if (*num != '0')
+                {
+                    strcpy(out, single_digits[*num - '0']);
+                    out += strlen(single_digits[*num - '0']);
+                }
+            }
+        }
+        ++num;
     }
 }
