@@ -1,5 +1,5 @@
 /*
- * RockstarC.h
+ * RockstarC.c
  *
  * programm to convert c to rockstar code
  *
@@ -14,9 +14,10 @@
 #include <stdbool.h>
 #include "Parse.h"
 
-#define MAXL 32
+#define MAXL 32     //maximum lenght of a keyword or name
+#define MAXCMT 120  //maximum lenght of a comment line
 
-/*const char *ignore[] = {
+const char *dataType[] = {
     "auto",
     "register",
     "const",
@@ -24,17 +25,12 @@
     "signed",
     "void",
     "volatile",
-    "main(void)",
-    "{"
-};*/
-
-const char *foos[] = {
     "double",
     "int",
     "long",
     "float",
     "short",
-    "char",
+    "char"
 };
 
 void rockstarConvert(FILE *, FILE *);
@@ -42,6 +38,9 @@ void removeEnding(const char*, char*);
 void toCamelCase(char *);
 void convert_to_words(char*, char*);
 int getWord(FILE *, char*, char);
+bool convComment(char *, FILE *, FILE *);
+bool isDataType(char *);
+bool convVarDec(char *, FILE *, FILE *);
 
 int main(int argc, char *argv[])
 {
@@ -95,13 +94,17 @@ void rockstarConvert(FILE *ifp, FILE *ofp)
         {
             getWord(ifp, in, MAXL);
             if(strcmp(in, "<"))
-                fprintf(stderr, "conversion Error: #include not followed by <");
+                fprintf(stderr, "conversion Error: #include not followed by <\n");
             getWord(ifp, in, MAXL);
             getWord(ifp, in, MAXL);
             if(strcmp(in, ">"))
-                fprintf(stderr, "conversion Error: #include not followed by >");
+                fprintf(stderr, "conversion Error: #include not followed by >\n");
             continue;
         }
+        else if(convComment(in, ifp, ofp))
+            continue;
+        else if(convVarDec(in, ifp, ofp))
+            continue;
         fprintf(ofp,"%s\n",in);
     }  
 }
@@ -220,4 +223,79 @@ int getWord(FILE *ifp, char* out, char len)
     }
     fprintf(stderr,"getWord: char* to short!\n");
     return -2;
+}
+
+bool convComment(char *in, FILE *ifp, FILE *ofp)
+{
+    char temp[MAXCMT];
+    if(strcmp(in, "//") == 0)
+    {
+        getWord(ifp, temp, MAXCMT);
+        fprintf(ofp, "(%s)\n", temp);
+        getWord(ifp, temp, MAXCMT);
+        if(strcmp(temp, ""))
+                fprintf(stderr, "conversion Error: single line comment not followed by \\n\n");
+        return 1;
+    }
+    else if(strcmp(in, "/*") == 0)
+    {
+        while (1)
+        {
+            getWord(ifp, temp, MAXCMT);
+            if(strcmp(temp, "/") == 0)
+                break;
+            fprintf(ofp, "(%s)\n", temp);
+        }
+        
+        return 1;
+    }
+    return 0;
+}
+
+bool isDataType(char *c)
+{
+    for (char i = 0; i < (sizeof(dataType)/sizeof(dataType[0])); i++)
+    {
+        if(strcmp(c, dataType[i]) == 0)
+            return true;
+    }
+    return false;
+}
+
+bool convVarDec(char *in, FILE *ifp, FILE *ofp)
+{
+    if(!isDataType(in))
+        return 0;
+    char tempName[MAXL];
+    char temp[MAXL];
+    while (1)
+    {
+        getWord(ifp, tempName, MAXL);
+        if(!isDataType(tempName))
+            break;
+    }
+    getWord(ifp, temp, MAXL);
+    if(strcmp(temp, ",") == 0)
+        while (1)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, ";") == 0)
+                break;
+        }
+    else if(strcmp(temp, ";") == 0)
+        ;
+    else if(strcmp(temp, "[") == 0)
+        ;
+    else if(strcmp(temp, "(") == 0)
+        fprintf(stderr, "variable declaration conversion Error: input is a function declaration\n");
+    else if(strcmp(temp, "=") == 0)
+    {
+        fprintf(ofp, "%s is", tempName);
+        getWord(ifp, temp, MAXL);
+        fprintf(ofp, " %s\n", temp);
+        getWord(ifp, temp, MAXL);
+        if(strcmp(temp, ";"))
+            fprintf(stderr, "conversion Error: variable declaration not followed by ;\n");
+    }
+    return 1;
 }
