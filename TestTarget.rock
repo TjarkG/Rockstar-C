@@ -13,6 +13,8 @@ I is 6
 (This is a Comment)
 Test is 3.54
 TestTwo is 12432563283
+Let test be test+i
+Let test be plus i
 Say "Hello World"
 Say "test"
 Say test

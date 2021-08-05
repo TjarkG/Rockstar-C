@@ -19,6 +19,7 @@ int main(void)
     double test = 3.54;
     volatile unsigned long int testTwo = 12432563283;
     test = test + i;
+    test += i;
     printf("Hello World\n");
     printf("test\n");
     printf(test);

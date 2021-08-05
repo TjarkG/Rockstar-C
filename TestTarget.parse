@@ -58,6 +58,10 @@ test
 +
 i
 ;
+test
++=
+i
+;
 printf
 (
 "

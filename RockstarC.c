@@ -33,19 +33,64 @@ const char *dataType[] = {
     "char"
 };
 
+const char *keyword[] = {
+    "auto",
+    "register",
+    "const",
+    "unsigned",
+    "signed",
+    "void",
+    "volatile",
+    "double",
+    "int",
+    "long",
+    "float",
+    "short",
+    "char",
+    "break",
+    "case",
+    "continue",
+    "default",
+    "else",
+    "enum",
+    "extern",
+    "for",
+    "goto",
+    "if",
+    "inline",
+    "return",
+    "restrict",
+    "sizeof",
+    "static",
+    "struct",
+    "switch",
+    "typedef",
+    "union",
+    "while",
+    "_Bool",
+    "_Complex",
+    "_Generic",
+    "_Imaginary",
+    "bool",
+    "complex",
+    "imaginary"
+};
+
 void rockstarConvert(FILE *, FILE *);
 void removeEnding(const char*, char*);
 void toCamelCase(char *);
 void convert_to_words(char*, char*);
 int getWord(FILE *, char*, char);
 bool convComment(char *, FILE *, FILE *);
-bool isDataType(char *);
+bool isInArray(char *, const char**);
 bool convVarDec(char *, FILE *, FILE *);
 bool convFuncDec(char *, FILE *, FILE *);
 void convStatment(char *, FILE *, FILE *);
 bool convPrintf(char *, FILE *, FILE *);
 bool convReturn(char *, FILE *, FILE *);
 void _trim(char *);
+bool convAssigment(char*, FILE *, FILE *);
+void convExpression(FILE *, FILE *, char);
 
 int main(int argc, char *argv[])
 {
@@ -270,11 +315,11 @@ void _trim(char * s) {
     memmove(s, p, l + 1);
 }
 
-bool isDataType(char *c)
+bool isInArray(char *c, const char **array)
 {
-    for (char i = 0; i < (sizeof(dataType)/sizeof(dataType[0])); i++)
+    for (char i = 0; i < (sizeof(dataType)/sizeof(array[0])); i++)
     {
-        if(strcmp(c, dataType[i]) == 0)
+        if(strcmp(c, array[i]) == 0)
             return true;
     }
     return false;
@@ -282,14 +327,14 @@ bool isDataType(char *c)
 
 bool convVarDec(char *in, FILE *ifp, FILE *ofp)
 {
-    if(!isDataType(in))
+    if(!isInArray(in, dataType))
         return 0;
     char tempName[MAXL];
     char temp[MAXL];
     while (1)
     {
         getWord(ifp, tempName, MAXL);
-        if(!isDataType(tempName))
+        if(!isInArray(tempName, dataType))
             break;
     }
     getWord(ifp, temp, MAXL);
@@ -306,7 +351,6 @@ bool convVarDec(char *in, FILE *ifp, FILE *ofp)
         ;
     else if(strcmp(temp, "(") == 0)
         convFuncDec(tempName, ifp, ofp);
-        //fprintf(stderr, "variable declaration conversion Error: input is a function declaration\n");
     else if(strcmp(temp, "=") == 0)
     {
         toCamelCase(tempName);
@@ -348,7 +392,7 @@ void convStatment(char *in, FILE *ifp, FILE *ofp)
         {
             getWord(ifp, temp, MAXL);
             if(strcmp(temp, "}") == 0)
-                break;
+                return;
             else
                 convStatment(temp, ifp, ofp);
         }
@@ -360,6 +404,8 @@ void convStatment(char *in, FILE *ifp, FILE *ofp)
     else if(convPrintf(in, ifp, ofp))
         return;
     else if(convReturn(in, ifp, ofp))
+        return;
+    else if(convAssigment(in, ifp, ofp))
         return;
 }
 
@@ -392,7 +438,11 @@ bool convPrintf(char *in, FILE *ifp, FILE *ofp)
             }
             else
                 fprintf(ofp, "%c", c);
-        }  
+        }
+        getc(ifp);
+        getWord(ifp, temp, MAXL);
+        if(strcmp(temp, ";"))
+            fprintf(stderr, "conversion Error: printf declaration not followed by ;\n");  
         return 1;
     }
     return 0;
@@ -414,8 +464,59 @@ bool convReturn(char *in, FILE *ifp, FILE *ofp)
             }
             else
                 fprintf(ofp, "%s", temp);
-        }  
+        }
         return 1;
     }
     return 0;
+}
+
+bool convAssigment(char* in, FILE *ifp, FILE *ofp)
+{
+    if(isInArray(in, keyword))
+        return 0;
+    fprintf(ofp, "Let %s be ", in);
+    char temp[MAXL];
+    getWord(ifp, temp, MAXL);
+    if(strcmp(temp, "=") == 0)
+        ;
+    else if(strcmp(temp, "+=") == 0)
+        fprintf(ofp, "plus ");
+    else if(strcmp(temp, "-=") == 0)
+        fprintf(ofp, "minus ");
+    else if(strcmp(temp, "*=") == 0)
+        fprintf(ofp, "times ");
+    else if(strcmp(temp, "/=") == 0)
+        fprintf(ofp, "over ");
+    else if(strcmp(temp, "%%=") == 0)
+        fprintf(stderr, "%%= not supported in rockstar\n");
+    else if(strcmp(temp, "|=") == 0)
+        fprintf(ofp, "%s plus ", in);
+    else if(strcmp(temp, "&=") == 0)
+        fprintf(ofp, "%s plus ", in);
+    else if(strcmp(temp, "^=") == 0)
+        fprintf(ofp, "%s plus ", in);
+    else if(strcmp(temp, "<<=") == 0)
+        fprintf(stderr, "<<= not supported in rockstar\n");
+    else if(strcmp(temp, ">>=") == 0)
+        fprintf(stderr, ">>= not supported in rockstar\n");
+    convExpression(ifp, ofp, ';');
+    fprintf(ofp, "\n");
+    return 1;
+}
+
+void convExpression(FILE *ifp, FILE *ofp, char end)
+{
+    char temp[MAXL];
+    while (1)
+    {
+        getWord(ifp, temp, MAXL);
+        if(strcmp(temp, ";") == 0 || strcmp(temp, ")") == 0)
+        {
+            return;
+        }
+        if(strcmp(temp, "(") == 0)
+            fprintf(stderr, "Brackets are not supported in rockstar\n");
+        else
+            fprintf(ofp, "%s", temp);
+    } 
 }
