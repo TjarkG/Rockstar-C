@@ -1,5 +1,5 @@
 /*
- * TestTarget
+ * TestTarget.c
  *
  * programm to convert c to rockstar code
  *
@@ -8,20 +8,40 @@
  */
 
 #include <stdio.h>
- //This is a Comment
- int ii_6 = 6;
+
+int modulo(int divident,int divisor)
+{
+    //while (divident >= divisor)
+    //{
+        divident -= divisor;
+    //}
+    return divident;
+}
 
 int main(void)
 {
-    int i = 6;
-    int j , k;
-    //This is a Comment
-    double test = 3.54;
-    volatile unsigned long int testTwo = 12432563283;
-    test = test + i;
-    test += i;
-    printf("Hello World\n");
-    printf("test\n");
-    printf(test);
+    int max = 100;
+    int i = 0;
+    while (i < max)
+    {
+        i++;
+        if(modulo(i, 15) == 0)
+        {
+            printf("FizzBuzz!\n");
+            continue;
+        }
+        if(modulo(i, 3) == 0)
+        {
+            printf("Fizz!\n");
+            continue;
+        }
+        if(modulo(i, 5) == 0)
+        {
+            printf("Buzz!\n");
+            continue;
+        }
+        printf("%d\n", i);
+    }
+    
     return 0;
 }

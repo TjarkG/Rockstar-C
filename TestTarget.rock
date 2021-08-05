@@ -1,21 +1,23 @@
 ()
-(TestTarget)
+(TestTarget.c)
 ()
 (programm to convert c to rockstar code)
 ()
 (Created: 02.08.2021 15:42:57)
 (Author: TjarkG)
 ()
-(This is a Comment)
-IiSix is 6
+Modulo takes Divident and Divisor 
+(while (divident >= divisor))
+({)
+Let Divident be minus Divisor
+(})
+Give Back divident
 
-I is 6
-(This is a Comment)
-Test is 3.54
-TestTwo is 12432563283
-Let test be test+i
-Let test be plus i
-Say "Hello World"
-Say "test"
-Say test
-Give Back 0
+Max is 100
+I is 0
+Let  be I<Max{I++
+Let ( be I,15 ==0{Printf"FizzBuzz!\n"
+Let ; be }IfModuloI,3 ==0{Printf"Fizz!\n"
+Let ; be }IfModuloI,5 ==0{Printf"Buzz!\n"
+Let ; be }Printf"%d\n",I
+Let  be Return0

@@ -17,6 +17,29 @@
 #define MAXL 32     //maximum lenght of a keyword or name
 #define MAXCMT 120  //maximum lenght of a comment line
 
+struct operator
+{
+    char c;
+    char rock[8];
+};
+
+const struct operator operators[] = {
+    {'+', "plus "   },
+    {'-', "minus "  },
+    {'*', "times "  },
+    {'/', "over "   },
+    {'=', ""        }
+};
+
+const char unsuported[] = {
+    '%',
+    '|',
+    '&',
+    '<',
+    '>',
+    '^'
+};
+
 const char *dataType[] = {
     "auto",
     "register",
@@ -76,13 +99,15 @@ const char *keyword[] = {
     "imaginary"
 };
 
+#define DATATYPE (sizeof(dataType)/sizeof(dataType[0]))
+
 void rockstarConvert(FILE *, FILE *);
 void removeEnding(const char*, char*);
 void toCamelCase(char *);
 void convert_to_words(char*, char*);
 int getWord(FILE *, char*, char);
 bool convComment(char *, FILE *, FILE *);
-bool isInArray(char *, const char**);
+bool isInArray(char *, const char**, char);
 bool convVarDec(char *, FILE *, FILE *);
 bool convFuncDec(char *, FILE *, FILE *);
 void convStatment(char *, FILE *, FILE *);
@@ -143,12 +168,6 @@ void rockstarConvert(FILE *ifp, FILE *ofp)
         if(strcmp(in, "#include") == 0)
         {
             getWord(ifp, in, MAXL);
-            if(strcmp(in, "<"))
-                fprintf(stderr, "conversion Error: #include not followed by <\n");
-            getWord(ifp, in, MAXL);
-            getWord(ifp, in, MAXL);
-            if(strcmp(in, ">"))
-                fprintf(stderr, "conversion Error: #include not followed by >\n");
             continue;
         }
         else if(convComment(in, ifp, ofp))
@@ -180,12 +199,13 @@ void toCamelCase(char *name)
     {
         if(name[i] == '_')
         {
-            for(char j = i; j<length; j++)
+            /*for(char j = i; j<length; j++)
             {
                 name[j] = name[j+1];
             }
-            name[length] = '\0';
-            name[i] = toupper(name[i]);
+            name[length] = '\0';*/
+            name[i] = ' ';
+            name[i+1] = toupper(name[i+1]);
         }
         if(isdigit(name[i]))
         {
@@ -315,9 +335,9 @@ void _trim(char * s) {
     memmove(s, p, l + 1);
 }
 
-bool isInArray(char *c, const char **array)
+bool isInArray(char *c, const char **array, char lenght)
 {
-    for (char i = 0; i < (sizeof(dataType)/sizeof(array[0])); i++)
+    for (char i = 0; i < lenght; i++)
     {
         if(strcmp(c, array[i]) == 0)
             return true;
@@ -327,14 +347,14 @@ bool isInArray(char *c, const char **array)
 
 bool convVarDec(char *in, FILE *ifp, FILE *ofp)
 {
-    if(!isInArray(in, dataType))
+    if(!isInArray(in, dataType, DATATYPE))
         return 0;
     char tempName[MAXL];
     char temp[MAXL];
     while (1)
     {
         getWord(ifp, tempName, MAXL);
-        if(!isInArray(tempName, dataType))
+        if(!isInArray(tempName, dataType, DATATYPE))
             break;
     }
     getWord(ifp, temp, MAXL);
@@ -379,6 +399,34 @@ bool convFuncDec(char *name, FILE *ifp, FILE *ofp)
             }
         }
         return 1;
+    }
+    else
+    {
+        char temp[MAXL];
+        toCamelCase(name);
+        fprintf(ofp, "%s takes ", name);
+        while (1)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, ")") == 0)
+            {
+                getWord(ifp, temp, MAXL);
+                convStatment(temp, ifp, ofp);
+                break;
+            }
+            else if(isInArray(temp, dataType, DATATYPE))
+                continue;
+            else if(temp[0] == ',')
+            {
+                fprintf(ofp, "and ");
+                continue;
+            }
+            else
+            {
+                toCamelCase(temp);
+                fprintf(ofp, "%s ", temp);
+            }
+        }
     }
 }
 
@@ -472,33 +520,22 @@ bool convReturn(char *in, FILE *ifp, FILE *ofp)
 
 bool convAssigment(char* in, FILE *ifp, FILE *ofp)
 {
-    if(isInArray(in, keyword))
+    if(isInArray(in, keyword, (sizeof(keyword)/sizeof(keyword[0]))))
         return 0;
-    fprintf(ofp, "Let %s be ", in);
     char temp[MAXL];
+    bool found = false;
+    toCamelCase(in);
+    fprintf(ofp, "Let %s be ", in);
     getWord(ifp, temp, MAXL);
-    if(strcmp(temp, "=") == 0)
-        ;
-    else if(strcmp(temp, "+=") == 0)
-        fprintf(ofp, "plus ");
-    else if(strcmp(temp, "-=") == 0)
-        fprintf(ofp, "minus ");
-    else if(strcmp(temp, "*=") == 0)
-        fprintf(ofp, "times ");
-    else if(strcmp(temp, "/=") == 0)
-        fprintf(ofp, "over ");
-    else if(strcmp(temp, "%%=") == 0)
-        fprintf(stderr, "%%= not supported in rockstar\n");
-    else if(strcmp(temp, "|=") == 0)
-        fprintf(ofp, "%s plus ", in);
-    else if(strcmp(temp, "&=") == 0)
-        fprintf(ofp, "%s plus ", in);
-    else if(strcmp(temp, "^=") == 0)
-        fprintf(ofp, "%s plus ", in);
-    else if(strcmp(temp, "<<=") == 0)
-        fprintf(stderr, "<<= not supported in rockstar\n");
-    else if(strcmp(temp, ">>=") == 0)
-        fprintf(stderr, ">>= not supported in rockstar\n");
+    for (char i = 0; i < (sizeof(operators)/sizeof(operators[0])); i++)
+        if(temp[0] == operators[i].c)
+        {
+            fprintf(ofp, "%s", operators[i].rock);
+            found = true;
+            break;
+        }
+    if(!found)
+        fprintf(stderr, "%s not an operator in rockstar\n", temp);
     convExpression(ifp, ofp, ';');
     fprintf(ofp, "\n");
     return 1;
@@ -507,16 +544,37 @@ bool convAssigment(char* in, FILE *ifp, FILE *ofp)
 void convExpression(FILE *ifp, FILE *ofp, char end)
 {
     char temp[MAXL];
+    bool found = false;
     while (1)
     {
         getWord(ifp, temp, MAXL);
-        if(strcmp(temp, ";") == 0 || strcmp(temp, ")") == 0)
+        found = false;
+        for (char i = 0; i < (sizeof(operators)/sizeof(operators[0])); i++)
+            if(temp[0] == operators[i].c)
+            {
+                fprintf(ofp, " %s", operators[i].rock);
+                found = true;
+                break;
+            }
+        if(found)
+            continue;
+        if(temp[0] == end)
         {
             return;
         }
-        if(strcmp(temp, "(") == 0)
+        else if(temp[0] == '(' || temp[0] == ')')
+        {
             fprintf(stderr, "Brackets are not supported in rockstar\n");
-        else
+            continue;
+        }
+        else if(isdigit(temp[0]))
+        {
             fprintf(ofp, "%s", temp);
+        }
+        else
+        {
+            toCamelCase(temp);
+            fprintf(ofp, "%s", temp);
+        }
     } 
 }

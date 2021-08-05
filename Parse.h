@@ -17,7 +17,8 @@ const char separators[] = {
     '}',
     '[',
     ']',
-    ';'
+    ';',
+    ','
 };
 const char calcs[] = {
     '+',
@@ -33,7 +34,8 @@ const char calcs[] = {
     '&',
     '~',
     '?',
-    '!'
+    '!',
+    ':'
 };
 
 void parseC(FILE *, FILE *);
@@ -45,7 +47,7 @@ void parseC(FILE *ifp, FILE *ofp)
     char inLast = '\0';
     bool isSep;
     bool wasSep = false;
-    char inComment = 0;     // 0:no comment, 1: one line comment, 2: multi Line comment, 3: Include, 4: String Literal 5: Char Literal
+    char inComment = 0;     // 0:no comment, 1: one line comment, 2: multi Line comment, 4: String Literal 5: Char Literal
     while ((in = getc(ifp)) != EOF)
     {
         isSep = false;
@@ -54,8 +56,6 @@ void parseC(FILE *ifp, FILE *ofp)
             inComment = 1;
         else if(inLast == '/' && in == '*')
             inComment = 2;
-        else if(in == '<')
-            inComment = 3;
         else if(in == '"' && inComment != 4)
             inComment = 4;
         else if(in == '\'' && inComment != 4)
@@ -63,8 +63,6 @@ void parseC(FILE *ifp, FILE *ofp)
         else if(inComment == 1 && in == '\n')
             inComment = 0;
         else if(inComment == 2 && in == '/' && inLast == '*')
-            inComment = 0;
-        else if(inComment == 3 && in == '>')
             inComment = 0;
         else if(inComment == 4 && in == '"' && inLast != '\\')
             inComment = 0;
