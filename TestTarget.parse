@@ -16,18 +16,16 @@ stdio.h
 This is a Comment
 
 int
+ii_6
+=
+6
+;
+int
 main
 (
 void
 )
 {
-//
-This is a Comment
-
-/*
-and this too.
-    int main void*
-/
 int
 i
 =
@@ -38,6 +36,9 @@ j
 ,
 k
 ;
+//
+This is a Comment
+
 double
 test
 =
@@ -64,11 +65,19 @@ Hello World\n
 "
 )
 ;
-return
-0
+printf
+(
+"
+test\n
+"
+)
 ;
-}
-
+printf
+(
+test
+)
+;
+return
 0
 ;
 }

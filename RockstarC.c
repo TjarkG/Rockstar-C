@@ -4,7 +4,7 @@
  * programm to convert c to rockstar code
  *
  * Created: 02.08.2021 15:42:57
- *  Author: TjarkG
+ * Author: TjarkG
  */
 
 #include <stdio.h>
@@ -41,6 +41,11 @@ int getWord(FILE *, char*, char);
 bool convComment(char *, FILE *, FILE *);
 bool isDataType(char *);
 bool convVarDec(char *, FILE *, FILE *);
+bool convFuncDec(char *, FILE *, FILE *);
+void convStatment(char *, FILE *, FILE *);
+bool convPrintf(char *, FILE *, FILE *);
+bool convReturn(char *, FILE *, FILE *);
+void _trim(char *);
 
 int main(int argc, char *argv[])
 {
@@ -67,7 +72,7 @@ int main(int argc, char *argv[])
             char parseName[strlen(*argv)+4];
             removeEnding(*argv, parseName);
             strcpy(parseName+strlen(parseName), ".parse");
-            fpParse = fopen(parseName, "r+");
+            fpParse = fopen(parseName, "w+");
             parseC(fpIn, fpParse);
             //fclose(fpParse);
             fclose(fpIn);
@@ -244,12 +249,25 @@ bool convComment(char *in, FILE *ifp, FILE *ofp)
             getWord(ifp, temp, MAXCMT);
             if(strcmp(temp, "/") == 0)
                 break;
+            _trim(temp);
             fprintf(ofp, "(%s)\n", temp);
         }
         
         return 1;
     }
     return 0;
+}
+
+void _trim(char * s) {
+    char * p = s;
+    int l = strlen(p);
+
+    while(isspace(p[l - 1]) || p[l-1] == '*')
+        p[--l] = 0;
+    while(* p && (isspace(*p) || *p == '*'))
+        ++p, --l;
+
+    memmove(s, p, l + 1);
 }
 
 bool isDataType(char *c)
@@ -287,9 +305,11 @@ bool convVarDec(char *in, FILE *ifp, FILE *ofp)
     else if(strcmp(temp, "[") == 0)
         ;
     else if(strcmp(temp, "(") == 0)
-        fprintf(stderr, "variable declaration conversion Error: input is a function declaration\n");
+        convFuncDec(tempName, ifp, ofp);
+        //fprintf(stderr, "variable declaration conversion Error: input is a function declaration\n");
     else if(strcmp(temp, "=") == 0)
     {
+        toCamelCase(tempName);
         fprintf(ofp, "%s is", tempName);
         getWord(ifp, temp, MAXL);
         fprintf(ofp, " %s\n", temp);
@@ -298,4 +318,104 @@ bool convVarDec(char *in, FILE *ifp, FILE *ofp)
             fprintf(stderr, "conversion Error: variable declaration not followed by ;\n");
     }
     return 1;
+}
+
+bool convFuncDec(char *name, FILE *ifp, FILE *ofp)
+{
+    if(strcmp(name, "main") == 0)
+    {
+        char temp[MAXL];
+        while (1)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, "{") == 0)
+            {
+                convStatment("{", ifp, ofp);
+                break;
+            }
+        }
+        return 1;
+    }
+}
+
+void convStatment(char *in, FILE *ifp, FILE *ofp)
+{
+    char temp[MAXL];
+    if(strcmp(in, "{") == 0)
+    {
+        fprintf(ofp, "\n");
+        while (1)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, "}") == 0)
+                break;
+            else
+                convStatment(temp, ifp, ofp);
+        }
+    }
+    if(convComment(in, ifp, ofp))
+        return;
+    else if(convVarDec(in, ifp, ofp))
+        return;
+    else if(convPrintf(in, ifp, ofp))
+        return;
+    else if(convReturn(in, ifp, ofp))
+        return;
+}
+
+bool convPrintf(char *in, FILE *ifp, FILE *ofp)
+{
+    if(strcmp(in, "printf") == 0)
+    {
+        char temp[MAXL];
+        getWord(ifp, temp, MAXCMT);
+        if(strcmp(temp, "("))
+                fprintf(stderr, "conversion Error: printf not followed by (\n");
+        fprintf(ofp, "Say ");
+        char c;
+        while (1)
+        {
+            c = getc(ifp);
+            if(c == ')')
+            {
+                fprintf(ofp, "\n");
+                break;
+            }
+            if(c == '\n')
+            {
+                continue;
+            }
+            if(c == '\\')
+            {
+                c = getc(ifp);
+                continue;
+            }
+            else
+                fprintf(ofp, "%c", c);
+        }  
+        return 1;
+    }
+    return 0;
+}
+
+bool convReturn(char *in, FILE *ifp, FILE *ofp)
+{
+    if(strcmp(in, "return") == 0)
+    {
+        char temp[MAXL];
+        fprintf(ofp, "Give Back ");
+        while (1)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, ";") == 0)
+            {
+                fprintf(ofp, "\n");
+                break;
+            }
+            else
+                fprintf(ofp, "%s", temp);
+        }  
+        return 1;
+    }
+    return 0;
 }

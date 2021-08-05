@@ -1,36 +1,19 @@
 ()
-( * TestTarget)
-( *)
-( * programm to convert c to rockstar code)
-( *)
-( * Created: 02.08.2021 15:42:57)
-( *  Author: TjarkG)
-( *)
+(TestTarget)
+()
+(programm to convert c to rockstar code)
+()
+(Created: 02.08.2021 15:42:57)
+(Author: TjarkG)
+()
 (This is a Comment)
-(This is a Comment)
-(and this too.)
-(    int main void*)
-i is 6
-test is 3.54
-testTwo is 12432563283
-test
-=
-test
-+
-i
-;
-printf
-(
-"
-Hello World\n
-"
-)
-;
-return
-0
-;
-}
+IiSix is 6
 
-0
-;
-}
+I is 6
+(This is a Comment)
+Test is 3.54
+TestTwo is 12432563283
+Say "Hello World"
+Say "test"
+Say test
+Give Back 0

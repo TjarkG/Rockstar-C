@@ -4,7 +4,7 @@
  * Header to parse c to the format needed for the c to rockstar converter
  *
  * Created: 04.08.2021 19:40:05
- *  Author: TjarkG
+ * Author: TjarkG
  */
 
 #ifndef Parse_H_
@@ -93,7 +93,7 @@ void parseC(FILE *ifp, FILE *ofp)
             ;
         else if(isspace(in) && isspace(inLast) && !inComment)
             ;
-        else if(isspace(in) && ( isalpha(inLast) || iscalc(inLast)) && !inComment)
+        else if(isspace(in) && ( isalpha(inLast) || iscalc(inLast) || isdigit(inLast)) && !inComment)
             fprintf(ofp, "\n");
         else
             fprintf(ofp, "%c", in);
