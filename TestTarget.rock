@@ -7,15 +7,21 @@
 (Author: TjarkG)
 ()
 Modulo takes Divident and Divisor 
-(while (divident >= divisor))
-({)
-Let Divident be minus Divisor
-(})
-Give Back divident
+while Divident is as high as Divisor
+statment
+Let  be Divident minus Divisor
+
+test
+Let  be ReturnDivident
 
 Max is 100
 I is 0
-Let  be I<Max{I++
+Let I be plus I
+while I is lower than Max
+statment
+Let  be I++
+
+test
 Let ( be I,15 ==0{Printf"FizzBuzz!\n"
 Let ; be }IfModuloI,3 ==0{Printf"Fizz!\n"
 Let ; be }IfModuloI,5 ==0{Printf"Buzz!\n"

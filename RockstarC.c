@@ -19,16 +19,20 @@
 
 struct operator
 {
-    char c;
-    char rock[8];
+    char c[3];
+    char rock[16];
 };
 
 const struct operator operators[] = {
-    {'+', "plus "   },
-    {'-', "minus "  },
-    {'*', "times "  },
-    {'/', "over "   },
-    {'=', ""        }
+    {"+=", "plus "          },
+    {"-=", "minus "         },
+    {"*=", "times "         },
+    {"/=", "over "          },
+    {"==", ""               },
+    {">" , "is higher than "},
+    {"<" , "is lower than " },
+    {">=", "is as high as " },
+    {"<=", "is as low as "  }
 };
 
 const char unsuported[] = {
@@ -445,7 +449,23 @@ void convStatment(char *in, FILE *ifp, FILE *ofp)
                 convStatment(temp, ifp, ofp);
         }
     }
-    if(convComment(in, ifp, ofp))
+    else if(strcmp(in, "while") == 0)
+    {
+        while (1)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, "(") == 0)
+                break;
+        }
+        fprintf(ofp, "while ");
+        convExpression(ifp, ofp, ')');
+        fprintf(ofp, "\nstatment\n");
+        getWord(ifp, temp, MAXL);
+        convStatment(temp, ifp, ofp);
+        fprintf(ofp, "\ntest\n");
+        return;
+    }
+    else if(convComment(in, ifp, ofp))
         return;
     else if(convVarDec(in, ifp, ofp))
         return;
@@ -528,7 +548,7 @@ bool convAssigment(char* in, FILE *ifp, FILE *ofp)
     fprintf(ofp, "Let %s be ", in);
     getWord(ifp, temp, MAXL);
     for (char i = 0; i < (sizeof(operators)/sizeof(operators[0])); i++)
-        if(temp[0] == operators[i].c)
+        if(strcmp(operators[i].c, temp) == 0)
         {
             fprintf(ofp, "%s", operators[i].rock);
             found = true;
@@ -550,7 +570,7 @@ void convExpression(FILE *ifp, FILE *ofp, char end)
         getWord(ifp, temp, MAXL);
         found = false;
         for (char i = 0; i < (sizeof(operators)/sizeof(operators[0])); i++)
-            if(temp[0] == operators[i].c)
+            if(strcmp(operators[i].c, temp) == 0)
             {
                 fprintf(ofp, " %s", operators[i].rock);
                 found = true;

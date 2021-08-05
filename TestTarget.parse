@@ -20,19 +20,21 @@ int
 divisor
 )
 {
-//
-while (divident >= divisor)
+while
 
-//
+(
+divident
+>=
+divisor
+)
+
 {
-
 divident
 -=
 divisor
 ;
-//
-}
 
+}
 return
 divident
 ;
@@ -52,6 +54,10 @@ int
 i
 =
 0
+;
+i
++=
+i
 ;
 while
 

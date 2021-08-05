@@ -11,10 +11,10 @@
 
 int modulo(int divident,int divisor)
 {
-    //while (divident >= divisor)
-    //{
+    while (divident >= divisor)
+    {
         divident -= divisor;
-    //}
+    }
     return divident;
 }
 
@@ -22,6 +22,7 @@ int main(void)
 {
     int max = 100;
     int i = 0;
+    i += i;
     while (i < max)
     {
         i++;
