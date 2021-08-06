@@ -71,12 +71,20 @@ max
 i
 ++
 ;
-//
-if(modulo(i, 15) == 0)
+if
+(
+modulo
+(
+i
+,
 
-//
+15
+)
+ ==
+0
+)
+
 {
-
 printf
 (
 "
@@ -86,30 +94,60 @@ FizzBuzz!\n
 ;
 continue
 ;
-break
-;
-//
-}
 
-/*
-if(modulo(i, 3) == 0)
-        {
-            printf("Fizz!\n");
-            continue;
-        }
-        if(modulo(i, 5) == 0)
-        {
-            printf("Buzz!\n");
-            continue;
-        }*
-/
+}
+if
+(
+modulo
+(
+i
+,
+
+3
+)
+ ==
+0
+)
+
+{
 printf
 (
 "
-%d\n
+Fizz!\n
 "
+)
+;
+continue
+;
+
+}
+if
+(
+modulo
+(
+i
 ,
 
+5
+)
+ ==
+0
+)
+
+{
+printf
+(
+"
+Buzz!\n
+"
+)
+;
+continue
+;
+
+}
+printf
+(
 i
 )
 ;

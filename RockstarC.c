@@ -29,11 +29,17 @@ const struct operator operators[] = {
     {"-=", "minus "         },
     {"*=", "times "         },
     {"/=", "over "          },
-    {"==", ""               },
-    {">" , "is higher than "},
-    {"<" , "is lower than " },
-    {">=", "is as high as " },
-    {"<=", "is as low as "  }
+    {"+", " plus "          },
+    {"-", " minus "         },
+    {"*", " times "         },
+    {"/", " over "          },
+    {"==", " is "            },
+    {">" , " is higher than "},
+    {"<" , " is lower than " },
+    {">=", " is as high as " },
+    {"<=", " is as low as "  },
+    {"(", " taking "        },
+    {",", ", "           }
 };
 
 const char unsuported[] = {
@@ -119,7 +125,7 @@ bool convFuncDec(char *, FILE *, FILE *);
 void convStatment(char *, FILE *, FILE *);
 bool convPrintf(char *, FILE *, FILE *);
 bool convReturn(char *, FILE *, FILE *);
-void _trim(char *);
+void _trim(char *, bool);
 bool convAssigment(char*, FILE *, FILE *);
 void convExpression(FILE *, FILE *, char);
 
@@ -320,7 +326,7 @@ bool convComment(char *in, FILE *ifp, FILE *ofp)
             getWord(ifp, temp, MAXCMT);
             if(strcmp(temp, "/") == 0)
                 break;
-            _trim(temp);
+            _trim(temp, true);
             fprintf(ofp, "(%s)\n", temp);
         }
         
@@ -329,13 +335,13 @@ bool convComment(char *in, FILE *ifp, FILE *ofp)
     return 0;
 }
 
-void _trim(char * s) {
+void _trim(char * s, bool astriks) {
     char * p = s;
     int l = strlen(p);
 
-    while(isspace(p[l - 1]) || p[l-1] == '*')
+    while(isspace(p[l - 1]) || (p[l-1] == '*' && astriks))
         p[--l] = 0;
-    while(* p && (isspace(*p) || *p == '*'))
+    while(* p && (isspace(*p) || (*p == '*' && astriks)))
         ++p, --l;
 
     memmove(s, p, l + 1);
@@ -450,6 +456,34 @@ void convSingleStatment(char *in, FILE *ifp, FILE *ofp)
                 break;
         }
         fprintf(ofp, "While ");
+        convExpression(ifp, ofp, ')');
+        fprintf(ofp, "\n");
+        for (int i = 0; i < MAXW; i++)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, "{") == 0)
+                break;
+        }
+        for (int i = 0; i < MAXW; i++)
+        {
+            getWord(ifp, temp, MAXL);
+            if(temp[0] == '}')
+                break;
+            else
+                convSingleStatment(temp, ifp, ofp);
+        }
+        fprintf(ofp, "\n");
+        return;
+    }
+    else if(strcmp(in, "if") == 0)
+    {
+        for (int i = 0; i < MAXW; i++)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, "(") == 0)
+                break;
+        }
+        fprintf(ofp, "If ");
         convExpression(ifp, ofp, ')');
         fprintf(ofp, "\n");
         for (int i = 0; i < MAXW; i++)
@@ -619,29 +653,28 @@ bool convAssigment(char* in, FILE *ifp, FILE *ofp)
 void convExpression(FILE *ifp, FILE *ofp, char end)
 {
     char temp[MAXL];
+    char indent = 0;
     bool found = false;
     while (1)
     {
         getWord(ifp, temp, MAXL);
+        _trim(temp, false);
         found = false;
         for (char i = 0; i < (sizeof(operators)/sizeof(operators[0])); i++)
             if(strcmp(operators[i].c, temp) == 0)
             {
-                fprintf(ofp, " %s", operators[i].rock);
+                fprintf(ofp, "%s", operators[i].rock);
                 found = true;
                 break;
             }
+        if(temp[0] == '(')
+            indent++;
         if(found)
             continue;
-        if(temp[0] == end)
-        {
+        else if(temp[0] == end && indent == 0)
             return;
-        }
-        else if(temp[0] == '(' || temp[0] == ')')
-        {
-            fprintf(stderr, "Brackets are not supported in rockstar\n");
-            continue;
-        }
+        else if(temp[0] == ')')
+            indent--;
         else if(isdigit(temp[0]))
         {
             fprintf(ofp, "%s", temp);

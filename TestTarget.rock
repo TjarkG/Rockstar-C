@@ -17,22 +17,18 @@ I is 0
 Let I be plus I
 While I is lower than Max
 Build I up
-(if(modulo(i, 15) == 0))
-({)
+If Modulo taking I, 15 is 0
 Say "FizzBuzz!"
 Take it to the top
-Break it down
-(})
-(if(modulo(i, 3) == 0))
-({)
-(printf("Fizz!\n");)
-(continue;)
-(})
-(if(modulo(i, 5) == 0))
-({)
-(printf("Buzz!\n");)
-(continue;)
-(})
-Say "%d",i
+
+If Modulo taking I, 3 is 0
+Say "Fizz!"
+Take it to the top
+
+If Modulo taking I, 5 is 0
+Say "Buzz!"
+Take it to the top
+
+Say i
 
 Give Back 0

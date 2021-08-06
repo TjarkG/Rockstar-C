@@ -26,12 +26,12 @@ int main(void)
     while (i < max)
     {
         i ++;
-        //if(modulo(i, 15) == 0)
-        //{
+        if(modulo(i, 15) == 0)
+        {
             printf("FizzBuzz!\n");
             continue;
-        //}
-        /*if(modulo(i, 3) == 0)
+        }
+        if(modulo(i, 3) == 0)
         {
             printf("Fizz!\n");
             continue;
@@ -40,8 +40,8 @@ int main(void)
         {
             printf("Buzz!\n");
             continue;
-        }*/
-        printf("%d\n", i);
+        }
+        printf(i);
     }
     return 0;
 }
