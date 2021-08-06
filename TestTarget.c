@@ -1,7 +1,7 @@
 /*
  * TestTarget.c
  *
- * programm to convert c to rockstar code
+ * Test target for the c to rockstar converter
  *
  * Created: 02.08.2021 15:42:57
  *  Author: TjarkG
@@ -25,13 +25,13 @@ int main(void)
     i += i;
     while (i < max)
     {
-        i++;
-        if(modulo(i, 15) == 0)
-        {
+        i ++;
+        //if(modulo(i, 15) == 0)
+        //{
             printf("FizzBuzz!\n");
             continue;
-        }
-        if(modulo(i, 3) == 0)
+        //}
+        /*if(modulo(i, 3) == 0)
         {
             printf("Fizz!\n");
             continue;
@@ -40,9 +40,8 @@ int main(void)
         {
             printf("Buzz!\n");
             continue;
-        }
+        }*/
         printf("%d\n", i);
     }
-    
     return 0;
 }

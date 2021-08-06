@@ -1,29 +1,38 @@
 ()
 (TestTarget.c)
 ()
-(programm to convert c to rockstar code)
+(Test target for the c to rockstar converter)
 ()
 (Created: 02.08.2021 15:42:57)
 (Author: TjarkG)
 ()
 Modulo takes Divident and Divisor 
-while Divident is as high as Divisor
-statment
-Let  be Divident minus Divisor
+While Divident is as high as Divisor
+Let Divident be minus Divisor
 
-test
-Let  be ReturnDivident
+Give Back divident
 
 Max is 100
 I is 0
 Let I be plus I
-while I is lower than Max
-statment
-Let  be I++
+While I is lower than Max
+Build I up
+(if(modulo(i, 15) == 0))
+({)
+Say "FizzBuzz!"
+Take it to the top
+Break it down
+(})
+(if(modulo(i, 3) == 0))
+({)
+(printf("Fizz!\n");)
+(continue;)
+(})
+(if(modulo(i, 5) == 0))
+({)
+(printf("Buzz!\n");)
+(continue;)
+(})
+Say "%d",i
 
-test
-Let ( be I,15 ==0{Printf"FizzBuzz!\n"
-Let ; be }IfModuloI,3 ==0{Printf"Fizz!\n"
-Let ; be }IfModuloI,5 ==0{Printf"Buzz!\n"
-Let ; be }Printf"%d\n",I
-Let  be Return0
+Give Back 0

@@ -52,13 +52,13 @@ void parseC(FILE *ifp, FILE *ofp)
     {
         isSep = false;
         char cmtOld = inComment;
-        if(inLast == '/' && in == '/')
+        if(inComment == 0 && inLast == '/' && in == '/')
             inComment = 1;
-        else if(inLast == '/' && in == '*')
+        else if(inComment == 0 && inLast == '/' && in == '*')
             inComment = 2;
-        else if(in == '"' && inComment != 4)
+        else if(inComment == 0 && in == '"' && inComment != 4)
             inComment = 4;
-        else if(in == '\'' && inComment != 4)
+        else if(inComment == 0 && in == '\'' && inComment != 4)
             inComment = 5;
         else if(inComment == 1 && in == '\n')
             inComment = 0;

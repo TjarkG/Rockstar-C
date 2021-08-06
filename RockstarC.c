@@ -16,6 +16,7 @@
 
 #define MAXL 32     //maximum lenght of a keyword or name
 #define MAXCMT 120  //maximum lenght of a comment line
+#define MAXW 255    //maximum number of instructions in a block
 
 struct operator
 {
@@ -100,7 +101,8 @@ const char *keyword[] = {
     "_Imaginary",
     "bool",
     "complex",
-    "imaginary"
+    "imaginary",
+    ";"
 };
 
 #define DATATYPE (sizeof(dataType)/sizeof(dataType[0]))
@@ -282,7 +284,7 @@ void convert_to_words(char* out, char* num)
 
 int getWord(FILE *ifp, char* out, char len)
 {
-    for (char i = 0; i < len; i++)
+    for (int i = 0; i < len; i++)
     {
         char in = getc(ifp);
         if(in == EOF)
@@ -434,35 +436,53 @@ bool convFuncDec(char *name, FILE *ifp, FILE *ofp)
     }
 }
 
-void convStatment(char *in, FILE *ifp, FILE *ofp)
+void convSingleStatment(char *in, FILE *ifp, FILE *ofp)
 {
     char temp[MAXL];
-    if(strcmp(in, "{") == 0)
-    {
-        fprintf(ofp, "\n");
-        while (1)
-        {
-            getWord(ifp, temp, MAXL);
-            if(strcmp(temp, "}") == 0)
-                return;
-            else
-                convStatment(temp, ifp, ofp);
-        }
-    }
+    if(strlen(in) == 0)
+        return;
     else if(strcmp(in, "while") == 0)
     {
-        while (1)
+        for (int i = 0; i < MAXW; i++)
         {
             getWord(ifp, temp, MAXL);
             if(strcmp(temp, "(") == 0)
                 break;
         }
-        fprintf(ofp, "while ");
+        fprintf(ofp, "While ");
         convExpression(ifp, ofp, ')');
-        fprintf(ofp, "\nstatment\n");
+        fprintf(ofp, "\n");
+        for (int i = 0; i < MAXW; i++)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, "{") == 0)
+                break;
+        }
+        for (int i = 0; i < MAXW; i++)
+        {
+            getWord(ifp, temp, MAXL);
+            if(temp[0] == '}')
+                break;
+            else
+                convSingleStatment(temp, ifp, ofp);
+        }
+        fprintf(ofp, "\n");
+        return;
+    }
+    else if(strcmp(in, "continue") == 0)
+    {
+        fprintf(ofp, "Take it to the top\n");
         getWord(ifp, temp, MAXL);
-        convStatment(temp, ifp, ofp);
-        fprintf(ofp, "\ntest\n");
+        if(strcmp(temp, ";"))
+            fprintf(stderr, "conversion Error: continue not followed by ;\n");  
+        return;
+    }
+    else if(strcmp(in, "break") == 0)
+    {
+        fprintf(ofp, "Break it down\n");
+        getWord(ifp, temp, MAXL);
+        if(strcmp(temp, ";"))
+            fprintf(stderr, "conversion Error: break not followed by ;\n");  
         return;
     }
     else if(convComment(in, ifp, ofp))
@@ -475,6 +495,26 @@ void convStatment(char *in, FILE *ifp, FILE *ofp)
         return;
     else if(convAssigment(in, ifp, ofp))
         return;
+}
+
+void convStatment(char *in, FILE *ifp, FILE *ofp)
+{
+    char temp[MAXL];
+    if(strcmp(in, "{") == 0)
+    {
+        fprintf(ofp, "\n");
+        for (int i = 0; i < MAXW; i++)
+        {
+            getWord(ifp, temp, MAXL);
+            if(strcmp(temp, "}") == 0)
+                break;
+            else
+                convSingleStatment(temp, ifp, ofp);
+        }
+        return;
+    }
+    else
+        convSingleStatment(temp, ifp, ofp);
 }
 
 bool convPrintf(char *in, FILE *ifp, FILE *ofp)
@@ -510,7 +550,7 @@ bool convPrintf(char *in, FILE *ifp, FILE *ofp)
         getc(ifp);
         getWord(ifp, temp, MAXL);
         if(strcmp(temp, ";"))
-            fprintf(stderr, "conversion Error: printf declaration not followed by ;\n");  
+            fprintf(stderr, "conversion Error: printf() not followed by ;\n");  
         return 1;
     }
     return 0;
@@ -541,12 +581,27 @@ bool convReturn(char *in, FILE *ifp, FILE *ofp)
 bool convAssigment(char* in, FILE *ifp, FILE *ofp)
 {
     if(isInArray(in, keyword, (sizeof(keyword)/sizeof(keyword[0]))))
+    {
+        fprintf(stderr, "convAssigmnet called with %s as an argument\n", in);
         return 0;
+    }
     char temp[MAXL];
     bool found = false;
     toCamelCase(in);
-    fprintf(ofp, "Let %s be ", in);
     getWord(ifp, temp, MAXL);
+    if(strcmp(temp, "++") == 0)
+    {
+        fprintf(ofp, "Build %s up\n", in);
+        convExpression(ifp, ofp, ';');
+        return 1;
+    }
+    else if(strcmp(temp, "--") == 0)
+    {
+        fprintf(ofp, "Knock %s down\n", in);
+        convExpression(ifp, ofp, ';');
+        return 1;
+    }
+    fprintf(ofp, "Let %s be ", in);
     for (char i = 0; i < (sizeof(operators)/sizeof(operators[0])); i++)
         if(strcmp(operators[i].c, temp) == 0)
         {
