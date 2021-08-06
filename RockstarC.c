@@ -560,28 +560,39 @@ bool convPrintf(char *in, FILE *ifp, FILE *ofp)
         if(strcmp(temp, "("))
                 fprintf(stderr, "conversion Error: printf not followed by (\n");
         fprintf(ofp, "Say ");
-        char c;
-        while (1)
+        char c = 0;
+        getWord(ifp, temp, MAXCMT);
+        if(temp[0] == '"')
         {
-            c = getc(ifp);
-            if(c == ')')
-            {
-                fprintf(ofp, "\n");
-                break;
-            }
-            if(c == '\n')
-            {
-                continue;
-            }
-            if(c == '\\')
+            fprintf(ofp, "\"");
+            while (1)
             {
                 c = getc(ifp);
-                continue;
+                if(c == ')')
+                {
+                    fprintf(ofp, "\n");
+                    break;
+                }
+                if(c == '\n')
+                {
+                    continue;
+                }
+                if(c == '\\')
+                {
+                    c = getc(ifp);
+                    continue;
+                }
+                else
+                    fprintf(ofp, "%c", c);
             }
-            else
-                fprintf(ofp, "%c", c);
+            getc(ifp);
         }
-        getc(ifp);
+        else
+        {
+            toCamelCase(temp);
+            fprintf(ofp, "%s\n", temp);
+            getWord(ifp, temp, MAXL);
+        }
         getWord(ifp, temp, MAXL);
         if(strcmp(temp, ";"))
             fprintf(stderr, "conversion Error: printf() not followed by ;\n");  
@@ -596,17 +607,8 @@ bool convReturn(char *in, FILE *ifp, FILE *ofp)
     {
         char temp[MAXL];
         fprintf(ofp, "Give Back ");
-        while (1)
-        {
-            getWord(ifp, temp, MAXL);
-            if(strcmp(temp, ";") == 0)
-            {
-                fprintf(ofp, "\n");
-                break;
-            }
-            else
-                fprintf(ofp, "%s", temp);
-        }
+        convExpression(ifp, ofp, ';');
+        fprintf(ofp, "\n");
         return 1;
     }
     return 0;

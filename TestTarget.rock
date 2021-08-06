@@ -6,29 +6,28 @@
 (Created: 02.08.2021 15:42:57)
 (Author: TjarkG)
 ()
-Modulo takes Divident and Divisor 
-While Divident is as high as Divisor
-Let Divident be minus Divisor
+Midnight takes Your Heart and Your Soul 
+While Your Heart is as high as Your Soul
+Let Your Heart be minus Your Soul
 
-Give Back divident
+Give Back Your Heart
 
-Max is 100
-I is 0
-Let I be plus I
-While I is lower than Max
-Build I up
-If Modulo taking I, 15 is 0
+Desire is 100
+My World is 0
+While My World is lower than Desire
+Build My World up
+If Midnight taking My World, 15 is 0
 Say "FizzBuzz!"
 Take it to the top
 
-If Modulo taking I, 3 is 0
+If Midnight taking My World, 3 is 0
 Say "Fizz!"
 Take it to the top
 
-If Modulo taking I, 5 is 0
+If Midnight taking My World, 5 is 0
 Say "Buzz!"
 Take it to the top
 
-Say i
+Say My World
 
 Give Back 0

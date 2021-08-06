@@ -9,39 +9,38 @@
 
 #include <stdio.h>
 
-int modulo(int divident,int divisor)
+int midnight(int your_heart,int your_soul)
 {
-    while (divident >= divisor)
+    while (your_heart >= your_soul)
     {
-        divident -= divisor;
+        your_heart -= your_soul;
     }
-    return divident;
+    return your_heart;
 }
 
 int main(void)
 {
-    int max = 100;
-    int i = 0;
-    i += i;
-    while (i < max)
+    int desire = 100;
+    int my_world = 0;
+    while (my_world < desire)
     {
-        i ++;
-        if(modulo(i, 15) == 0)
+        my_world ++;
+        if(midnight(my_world, 15) == 0)
         {
             printf("FizzBuzz!\n");
             continue;
         }
-        if(modulo(i, 3) == 0)
+        if(midnight(my_world, 3) == 0)
         {
             printf("Fizz!\n");
             continue;
         }
-        if(modulo(i, 5) == 0)
+        if(midnight(my_world, 5) == 0)
         {
             printf("Buzz!\n");
             continue;
         }
-        printf(i);
+        printf(my_world);
     }
     return 0;
 }

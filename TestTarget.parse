@@ -11,32 +11,32 @@
 #include
 <stdio.h>
 int
-modulo
+midnight
 (
 int
-divident
+your_heart
 ,
 int
-divisor
+your_soul
 )
 {
 while
 
 (
-divident
+your_heart
 >=
-divisor
+your_soul
 )
 
 {
-divident
+your_heart
 -=
-divisor
+your_soul
 ;
 
 }
 return
-divident
+your_heart
 ;
 }
 int
@@ -46,36 +46,32 @@ void
 )
 {
 int
-max
+desire
 =
 100
 ;
 int
-i
+my_world
 =
 0
-;
-i
-+=
-i
 ;
 while
 
 (
-i
+my_world
 <
-max
+desire
 )
 
 {
-i
+my_world
 ++
 ;
 if
 (
-modulo
+midnight
 (
-i
+my_world
 ,
 
 15
@@ -98,9 +94,9 @@ continue
 }
 if
 (
-modulo
+midnight
 (
-i
+my_world
 ,
 
 3
@@ -123,9 +119,9 @@ continue
 }
 if
 (
-modulo
+midnight
 (
-i
+my_world
 ,
 
 5
@@ -148,7 +144,7 @@ continue
 }
 printf
 (
-i
+my_world
 )
 ;
 
