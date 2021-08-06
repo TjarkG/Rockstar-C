@@ -3,13 +3,13 @@ Rockstar-C is a Transpiler converting a subset of ANSI C to the [Rockstar Progra
 
 **Currently supportet language Fetures:**
 
-*Functions (incl. return)
-*Varibles
-*while loops
-*break / continue
-*if directives (currently without else)
-*assigment expressions
-*Comments
+* Functions (incl. return)
+* Varibles
+* while loops
+* break / continue
+* if directives (currently without else)
+* assigment expressions
+* Comments
 
 **How to use:**
 
