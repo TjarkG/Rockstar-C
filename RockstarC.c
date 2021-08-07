@@ -42,7 +42,7 @@ const struct operator operators[] = {
     {",", ", "           }
 };
 
-const char unsuported[] = {
+const char unsupported[] = {
     '%',
     '|',
     '&',
